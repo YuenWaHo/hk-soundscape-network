@@ -5,28 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Listen · Hong Kong Soundscape Network</title>
   <link rel="stylesheet" href="css/site.css" />
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
   <style>
     .clip { display: grid; gap: 0.75rem; }
-    .spec {
-      position: relative;
-      cursor: pointer;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      background: #000;
-    }
-    .spec img { display: block; width: 100%; height: auto; }
-    .playhead {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: #fff;
-      box-shadow: 0 0 0 1px rgba(0,0,0,.45);
-      left: 0;
-      pointer-events: none;
-    }
+    #spec { width: 100%; height: min(52vh, 420px); border-radius: 8px; border: 1px solid var(--border); background: #111; }
     audio { width: 100%; }
+    .hint { font-size: 0.9rem; color: var(--muted); margin: 0; }
   </style>
 </head>
 <body>
@@ -43,15 +27,13 @@
   </header>
   <main class="wrap">
     <h1>Listen</h1>
-    <p class="lead">Trial clip (~60 s). Spectrogram: 0–10 kHz, FFT 8192, viridis. White line tracks playback; click to seek.</p>
+    <p class="lead">Trial clip (~60 s). Spectrogram is interactive — zoom the Y axis (scroll / box zoom), double-click to reset. Vertical line tracks playback; click the plot to seek.</p>
 
     <article class="card clip">
       <h3>Trial recording</h3>
-      <p class="note">Site TBD · MP3 ~597 KB</p>
-      <div class="spec" id="spec">
-        <img src="assets/spectrograms/trial-full.png" alt="Spectrogram of the full trial recording" width="1600" height="420" />
-        <div class="playhead" id="playhead"></div>
-      </div>
+      <p class="note">Site TBD · 0–10 kHz · FFT 8192 · viridis</p>
+      <div id="spec" role="img" aria-label="Interactive spectrogram"></div>
+      <p class="hint">Toolbar: zoom, pan, autoscale. Scroll on the colour bar or drag a box on the plot to zoom frequency.</p>
       <audio id="player" controls preload="metadata" src="assets/audio/trial.mp3"></audio>
     </article>
 
@@ -59,26 +41,91 @@
   </main>
   <script>
     const audio = document.getElementById("player");
-    const spec = document.getElementById("spec");
-    const head = document.getElementById("playhead");
+    let duration = 60;
+    let playhead = 0;
 
-    function place() {
-      const d = audio.duration;
-      if (!d || !isFinite(d)) return;
-      head.style.left = (audio.currentTime / d * 100) + "%";
+    function layoutWithHead(t) {
+      return {
+        margin: { l: 55, r: 70, t: 28, b: 45 },
+        paper_bgcolor: "#15202b",
+        plot_bgcolor: "#0c1218",
+        font: { color: "#e8eef4", size: 12 },
+        xaxis: {
+          title: "Time (s)",
+          range: [0, duration],
+          gridcolor: "#243447",
+          zeroline: false,
+        },
+        yaxis: {
+          title: "Frequency (kHz)",
+          range: [0, 10],
+          gridcolor: "#243447",
+          zeroline: false,
+        },
+        shapes: [{
+          type: "line",
+          x0: t, x1: t,
+          y0: 0, y1: 1,
+          yref: "paper",
+          line: { color: "#ffffff", width: 2 },
+        }],
+        dragmode: "zoom",
+      };
     }
-    audio.addEventListener("timeupdate", place);
-    audio.addEventListener("seeked", place);
-    audio.addEventListener("loadedmetadata", place);
 
-    spec.addEventListener("click", (e) => {
-      const d = audio.duration;
-      if (!d || !isFinite(d)) return;
-      const rect = spec.getBoundingClientRect();
-      const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
-      audio.currentTime = ratio * d;
-      place();
+    fetch("assets/spectrograms/trial-spec.json")
+      .then((r) => r.json())
+      .then((data) => {
+        const trace = {
+          z: data.z,
+          x: data.t,
+          y: data.f_khz,
+          type: "heatmap",
+          colorscale: "Viridis",
+          zmin: data.zmin,
+          zmax: data.zmax,
+          colorbar: { title: { text: "dB", side: "right" }, thickness: 14 },
+          hovertemplate: "t=%{x:.2f}s<br>f=%{y:.2f} kHz<br>%{z:.1f} dB<extra></extra>",
+        };
+        const config = {
+          responsive: true,
+          displayModeBar: true,
+          modeBarButtonsToRemove: ["lasso2d", "select2d"],
+          scrollZoom: true,
+        };
+        return Plotly.newPlot("spec", [trace], layoutWithHead(0), config).then(() => {
+          const gd = document.getElementById("spec");
+          gd.on("plotly_click", (ev) => {
+            if (!ev || !ev.points || !ev.points.length) return;
+            const x = ev.points[0].x;
+            if (audio.duration && isFinite(audio.duration)) {
+              audio.currentTime = Math.min(Math.max(0, x), audio.duration);
+            }
+            updateHead();
+          });
+        });
+      });
+
+    function updateHead() {
+      if (audio.duration && isFinite(audio.duration)) duration = audio.duration;
+      playhead = audio.currentTime || 0;
+      // Only move the playhead — do not reset Y zoom
+      Plotly.relayout("spec", {
+        shapes: [{
+          type: "line",
+          x0: playhead, x1: playhead,
+          y0: 0, y1: 1,
+          yref: "paper",
+          line: { color: "#ffffff", width: 2 },
+        }],
+      });
+    }
+    audio.addEventListener("loadedmetadata", () => {
+      duration = audio.duration;
+      updateHead();
     });
+    audio.addEventListener("timeupdate", updateHead);
+    audio.addEventListener("seeked", updateHead);
   </script>
 </body>
 </html>
