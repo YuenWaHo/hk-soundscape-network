@@ -1,0 +1,54 @@
+:root {
+  --bg: #0c1218;
+  --surface: #15202b;
+  --text: #e8eef4;
+  --muted: #9bb0c3;
+  --accent: #3d9cf0;
+  --accent-2: #2dd4bf;
+  --border: #243447;
+  --max: 960px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: "Segoe UI", system-ui, sans-serif; line-height: 1.55; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+header.site {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+header.site .wrap { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; align-items: baseline; padding-bottom: 1rem; }
+.brand { font-weight: 700; font-size: 1.1rem; color: var(--text); }
+.brand span { color: var(--accent-2); font-weight: 500; }
+nav { display: flex; flex-wrap: wrap; gap: 0.85rem; }
+nav a { color: var(--muted); font-size: 0.95rem; }
+nav a[aria-current="page"] { color: var(--text); font-weight: 600; }
+h1 { font-size: 1.75rem; margin: 1.5rem 0 0.5rem; letter-spacing: -0.02em; }
+h2 { font-size: 1.2rem; margin: 1.75rem 0 0.5rem; color: var(--accent-2); }
+p.lead { color: var(--muted); font-size: 1.05rem; max-width: 42rem; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  margin: 0.85rem 0;
+}
+.card h3 { margin: 0 0 0.35rem; font-size: 1.05rem; }
+.card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+.grid { display: grid; gap: 0.85rem; }
+@media (min-width: 700px) { .grid.cols-3 { grid-template-columns: repeat(3, 1fr); } }
+#map {
+  height: min(70vh, 520px);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  margin-top: 1rem;
+}
+.note { font-size: 0.9rem; color: var(--muted); }
+.placeholder {
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  color: var(--muted);
+  background: #101820;
+}
+footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; }

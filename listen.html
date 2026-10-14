@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Listen · Hong Kong Soundscape Network</title>
+  <link rel="stylesheet" href="css/site.css" />
+  <style>
+    .clip { display: grid; gap: 0.75rem; }
+    .clip img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border); background: #000; }
+    audio { width: 100%; }
+  </style>
+</head>
+<body>
+  <header class="site">
+    <div class="wrap">
+      <a class="brand" href="index.html">Hong Kong Soundscape Network <span>(stub)</span></a>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="methods.html">Methods</a>
+        <a href="map.html">Map</a>
+        <a href="listen.html" aria-current="page">Listen</a>
+      </nav>
+    </div>
+  </header>
+  <main class="wrap">
+    <h1>Listen</h1>
+    <p class="lead">Trial clip from Derek’s upload (≈60 s WAV → compressed MP3). Spectrogram from the first 30 s.</p>
+
+    <article class="card clip">
+      <h3>Trial recording</h3>
+      <p class="note">Site TBD · full clip ~597 KB MP3 · also a 30 s preview</p>
+      <img src="assets/spectrograms/trial.png" alt="Spectrogram of trial recording (first 30 seconds)" width="1280" height="512" />
+      <div>
+        <p class="note" style="margin:0 0 0.35rem">Full (~60 s)</p>
+        <audio controls preload="metadata" src="assets/audio/trial.mp3"></audio>
+      </div>
+      <div>
+        <p class="note" style="margin:0 0 0.35rem">Preview (30 s)</p>
+        <audio controls preload="metadata" src="assets/audio/trial-preview-30s.mp3"></audio>
+      </div>
+    </article>
+
+    <footer>Prototype stub · coordinates provisional · more clips welcome</footer>
+  </main>
+</body>
+</html>
